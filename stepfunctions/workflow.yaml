@@ -1,0 +1,27 @@
+StartAt: LoadConfig
+States:
+  LoadConfig:
+    Type: Task
+    Resource: arn:aws:lambda:${region}:${account}:function:LoadConfig
+    Next: ProcessSchemas
+  ProcessSchemas:
+    Type: Map
+    InputPath: $.schemas
+    Parameters:
+      "schema.$": "$$.Map.Item.Value"  # 各リスト項目をschemaフィールドにマッピング
+    Iterator:
+      StartAt: ProcessSingleSchema
+      States:
+        ProcessSingleSchema:
+          Type: Task
+          Resource: arn:aws:lambda:${region}:${account}:function:ProcessSchema
+          End: true
+    Next: AggregateResults
+  AggregateResults:
+    Type: Task
+    Resource: arn:aws:lambda:${region}:${account}:function:AggregateResults
+    Next: NotifySlack
+  NotifySlack:
+    Type: Task
+    Resource: arn:aws:lambda:${region}:${account}:function:NotifySlack
+    End: true
