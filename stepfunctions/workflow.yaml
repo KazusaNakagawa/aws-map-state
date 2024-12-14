@@ -3,7 +3,20 @@ States:
   LoadConfig:
     Type: Task
     Resource: arn:aws:lambda:${region}:${account}:function:LoadConfig-${env}
+    TimeoutSeconds: 60
+    Retry:
+      - ErrorEquals:
+          - States.Timeout
+          - States.Runtime
+        IntervalSeconds: 5
+        MaxAttempts: 3
+        BackoffRate: 2.0
+    Catch:
+      - ErrorEquals:
+          - States.ALL
+        Next: NotifySlack
     Next: ProcessSchemas
+
   ProcessSchemas:
     Type: Map
     InputPath: $.schemas
@@ -15,13 +28,40 @@ States:
         ProcessSingleSchema:
           Type: Task
           Resource: arn:aws:lambda:${region}:${account}:function:ProcessSchema-${env}
+          TimeoutSeconds: 60
+          Retry:
+            - ErrorEquals:
+                - States.Timeout
+                - States.Runtime
+              IntervalSeconds: 5
+              MaxAttempts: 3
+              BackoffRate: 2.0
           End: true
+    Catch:
+      - ErrorEquals:
+          - States.ALL
+        Next: NotifySlack
     Next: AggregateResults
+
   AggregateResults:
     Type: Task
     Resource: arn:aws:lambda:${region}:${account}:function:AggregateResults-${env}
+    TimeoutSeconds: 60
+    Retry:
+      - ErrorEquals:
+          - States.Timeout
+          - States.Runtime
+        IntervalSeconds: 5
+        MaxAttempts: 3
+        BackoffRate: 2.0
+    Catch:
+      - ErrorEquals:
+          - States.ALL
+        Next: NotifySlack
     Next: NotifySlack
+
   NotifySlack:
     Type: Task
     Resource: arn:aws:lambda:${region}:${account}:function:NotifySlack-${env}
+    TimeoutSeconds: 60
     End: true

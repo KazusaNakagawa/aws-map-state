@@ -24,6 +24,7 @@ export class StepFunctionStack extends cdk.Stack {
       handler: 'load_config.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambdas')),
       functionName: `LoadConfig-${env}`,
+      timeout: cdk.Duration.seconds(30),
     });
 
     const processSchemaFunction = new lambda.Function(this, 'ProcessSchemaFunction', {
@@ -31,6 +32,7 @@ export class StepFunctionStack extends cdk.Stack {
       handler: 'process_schema.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambdas')),
       functionName: `ProcessSchema-${env}`,
+      timeout: cdk.Duration.seconds(60),
     });
 
     const aggregateResultsFunction = new lambda.Function(this, 'AggregateResultsFunction', {
@@ -38,6 +40,7 @@ export class StepFunctionStack extends cdk.Stack {
       handler: 'aggregate_results.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambdas')),
       functionName: `AggregateResults-${env}`,
+      timeout: cdk.Duration.seconds(30),
     });
 
     const notifySlackFunction = new lambda.Function(this, 'NotifySlackFunction', {
@@ -45,6 +48,7 @@ export class StepFunctionStack extends cdk.Stack {
       handler: 'notify_slack.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambdas')),
       functionName: `NotifySlack-${env}`,
+      timeout: cdk.Duration.seconds(30),
     });
 
     const yamlDefinition = fs.readFileSync(

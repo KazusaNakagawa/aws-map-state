@@ -20,3 +20,17 @@ $ npx cdk destroy -c env={env}
 * `npx cdk deploy`  deploy this stack to your default AWS account/region
 * `npx cdk diff`    compare deployed stack with current state
 * `npx cdk synth`   emits the synthesized CloudFormation template
+
+## Test 
+
+```json
+{
+    "category": "type1",
+    "dt_date": "2021-01-01",
+    "schemas": [
+        "schema1",
+        "schema2",
+        "schema3"
+    ]
+}
+```

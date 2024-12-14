@@ -7,8 +7,11 @@ const app = new cdk.App();
 
 /* Get the context parameter for environment */
 const env = app.node.tryGetContext('env');
+if (!env) {
+  throw new Error('Please provide env parameter');
+}
 
-new StepFunctionStack(app, `StepFunctionStack-${env}`, {
+const stepFunctionStack = new StepFunctionStack(app, `StepFunctionStack-${env}`, {
   env: { 
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,
