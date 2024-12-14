@@ -1,10 +1,13 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import * as yaml from 'yaml';
 import * as cdk from 'aws-cdk-lib';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as fs from 'fs';
-import * as path from 'path';
+
 
 export class StepFunctionStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -15,10 +18,11 @@ export class StepFunctionStack extends cdk.Stack {
     const region = this.region;
     const env = this.node.tryGetContext('env');
 
-    this.createStepFunction(env, account, region, stackName);
+    const definitionJson = this.createFunction(env, account, region);
+    this.createStateMachine(definitionJson, stackName);
   }
 
-  private createStepFunction(env: string, account: string, region: string, stackName: string) {
+  private createFunction(env: string, account: string, region: string) {
     const loadConfigFunction = new lambda.Function(this, 'LoadConfigFunction', {
       runtime: lambda.Runtime.PYTHON_3_12,
       handler: 'load_config.handler',
@@ -68,25 +72,68 @@ export class StepFunctionStack extends cdk.Stack {
         .replace('${NotifySlackFunctionArn}', notifySlackFunction.functionArn)
     );
     const definitionJson = JSON.stringify(definitionObject);
+    return definitionJson;
+  }
 
-    // create IAM role for Step Functions
+  private createStateMachine(definitionJson: string, stackName: string) { 
+    // IAM Role for Step Function
     const stateMachineRole = new iam.Role(this, 'StateMachineRole', {
       assumedBy: new iam.ServicePrincipal('states.amazonaws.com'),
     });
-
-    // 必要なポリシーをアタッチ
-    stateMachineRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaRole'));
-
-    // Step Functions ステートマシンの作成
-    const stateMachine = new sfn.CfnStateMachine(this, 'StateMachine', {
-      roleArn: stateMachineRole.roleArn,
-      definitionString: definitionJson,
+    stateMachineRole.addManagedPolicy(
+      iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaRole')
+    );
+    // Create L2 StateMachine
+    const stateMachine = new sfn.StateMachine(this, 'StateMachine', {
+      definitionBody: sfn.DefinitionBody.fromString(definitionJson),
+      role: stateMachineRole,
       stateMachineName: stackName,
     });
 
-    // 出力
+    // EventBridge Rule for triggering the State Machine
+    const ruleRole = new iam.Role(this, 'EventBridgeRuleRole', {
+      assumedBy: new iam.ServicePrincipal('events.amazonaws.com'),
+    });
+    ruleRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ['states:StartExecution'],
+        resources: [stateMachine.stateMachineArn],
+      })
+    );
+
+    new events.Rule(this, 'RuleType1', {
+      schedule: events.Schedule.expression('cron(*/10 * * * ? *)'),
+      enabled: false,
+      ruleName: `${stackName}-RuleType1`,
+      targets: [
+        new targets.SfnStateMachine(stateMachine, {
+          input: events.RuleTargetInput.fromObject({
+            category: 'type1',
+            dt_date: '2021-01-01',
+            schemas: ['schema1', 'schema2', 'schema3'],
+          }),
+          role: ruleRole,
+        }),
+      ],
+    });
+    new events.Rule(this, 'RuleType2', {
+      schedule: events.Schedule.expression('cron(*/3 * * * ? *)'),
+      enabled: false,
+      ruleName: `${stackName}-RuleType2`,
+      targets: [
+        new targets.SfnStateMachine(stateMachine, {
+          input: events.RuleTargetInput.fromObject({
+            category: 'type2',
+            dt_date: '2021-01-01',
+            schemas: ['schema4', 'schema5'],
+          }),
+          role: ruleRole,
+        }),
+      ],
+    });
+
     new cdk.CfnOutput(this, 'StateMachineArn', {
-      value: stateMachine.attrArn,
+      value: stateMachine.stateMachineArn,
     });
   }
 }

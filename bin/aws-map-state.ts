@@ -11,7 +11,7 @@ if (!env) {
   throw new Error('Please provide env parameter');
 }
 
-const stepFunctionStack = new StepFunctionStack(app, `StepFunctionStack-${env}`, {
+const _ = new StepFunctionStack(app, `StepFunctionStack-${env}`, {
   env: { 
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,

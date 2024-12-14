@@ -1,3 +1,4 @@
+import json
 from typing import Dict
 
 
@@ -13,24 +14,3 @@ def handler(event: Dict, context):
         }
     else:
         raise ValueError(f"Invalid category: {category}")
-
-
-if __name__ == "__main__":
-    event = {
-        "category": "type1",
-        "dt_date": "2021-01-01",
-        "schemas": [
-            "schema1",
-            "schema2",
-            "schema3"
-        ]
-    }
-    # event = {
-    #     'category': 'type2',
-    #     'dt_date': '2024-01-01',
-    #     'schemas': [
-    #         'schema4',
-    #         'schema5',
-    #     ]
-    # }
-    print(handler(event, None))
