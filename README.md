@@ -6,6 +6,14 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
 ## Useful commands
 
+```bash
+# deploy
+$ npx cdk deploy -c env={env}
+
+# destroy
+$ npx cdk destroy -c env={env}
+```
+
 * `npm run build`   compile typescript to js
 * `npm run watch`   watch for changes and compile
 * `npm run test`    perform the jest unit tests

@@ -5,11 +5,18 @@ def handler(event, context):
         raise ValueError("Invalid input format: event must be dict")
 
     schema = event.get("schema")
+
     if not schema:
         raise ValueError("Invalid input: 'schema' field is required")
-    
-    # 処理ロジック
-    return {
-        "schema": schema,
-        "result": f"Processed {schema}"
+
+    event["result"] = f"Processed {schema}"
+    event["schema"] = schema
+    return event
+
+
+if __name__ == "__main__":
+    event = {
+        "dt_date": "2021-01-01",
+        "schema": "schema1",
     }
+    print(handler(event, None))

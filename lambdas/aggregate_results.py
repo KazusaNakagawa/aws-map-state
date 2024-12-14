@@ -1,10 +1,13 @@
-def handler(event, context):
+from typing import Any, Dict, List
+
+
+def handler(event: List, context: Any) -> Dict:
     """複数のイベントを受け取り、スキーマの処理結果を集計"""
 
     if not isinstance(event, list):
         raise ValueError("Invalid input format: expected a list")
 
-    aggregated_count = 0
+    aggregated_count: int = 0
 
     for item in event:
         if isinstance(item, dict):
@@ -13,21 +16,25 @@ def handler(event, context):
                 aggregated_count += 1
 
     return {
-        "aggregated_result": aggregated_count
+        "event": event,
+        "aggregated_result": aggregated_count,
     }
 
 
 if __name__ == "__main__":
     event = [
       {
+        "dt_date": "2021-01-01", 
         "schema": "schema1",
         "result": "Processed schema1"
       },
       {
+        "dt_date": "2021-01-01", 
         "schema": "schema2",
         "result": "Processed schema2"
       },
       {
+        "dt_date": "2021-01-01", 
         "schema": "schema3",
         "result": "Processed schema3"
       }

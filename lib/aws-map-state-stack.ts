@@ -10,64 +10,64 @@ export class StepFunctionStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // 環境変数の取得
-    const account = this.account; // デプロイ時のアカウント
-    const region = this.region;   // デプロイ時のリージョン
+    const stackName = this.stackName;
+    const account = this.account;
+    const region = this.region;
+    const env = this.node.tryGetContext('env');
 
-    // Lambda関数の定義
+    this.createStepFunction(env, account, region, stackName);
+  }
+
+  private createStepFunction(env: string, account: string, region: string, stackName: string) {
     const loadConfigFunction = new lambda.Function(this, 'LoadConfigFunction', {
       runtime: lambda.Runtime.PYTHON_3_12,
       handler: 'load_config.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambdas')),
-      functionName: 'LoadConfig',
+      functionName: `LoadConfig-${env}`,
     });
 
     const processSchemaFunction = new lambda.Function(this, 'ProcessSchemaFunction', {
       runtime: lambda.Runtime.PYTHON_3_12,
       handler: 'process_schema.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambdas')),
-      functionName: 'ProcessSchema',
+      functionName: `ProcessSchema-${env}`,
     });
 
     const aggregateResultsFunction = new lambda.Function(this, 'AggregateResultsFunction', {
       runtime: lambda.Runtime.PYTHON_3_12,
       handler: 'aggregate_results.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambdas')),
-      functionName: 'AggregateResults',
+      functionName: `AggregateResults-${env}`,
     });
 
     const notifySlackFunction = new lambda.Function(this, 'NotifySlackFunction', {
       runtime: lambda.Runtime.PYTHON_3_12,
       handler: 'notify_slack.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambdas')),
-      functionName: 'NotifySlack',
+      functionName: `NotifySlack-${env}`,
     });
 
     const yamlDefinition = fs.readFileSync(
       path.join(__dirname, '../stepfunctions/workflow.yaml'),
       'utf8'
     );
-
-    // YAMLをオブジェクトに変換
     let definitionObject = yaml.parse(yamlDefinition);
-
-    // プレースホルダー置換
+    // replace variables in the definition
     definitionObject = JSON.parse(
       JSON.stringify(definitionObject)
         .replace(/\${account}/g, account)
         .replace(/\${region}/g, region)
+        .replace(/\${env}/g, env)
         .replace('${LoadConfigFunctionArn}', loadConfigFunction.functionArn)
         .replace('${ProcessSchemaFunctionArn}', processSchemaFunction.functionArn)
         .replace('${AggregateResultsFunctionArn}', aggregateResultsFunction.functionArn)
         .replace('${NotifySlackFunctionArn}', notifySlackFunction.functionArn)
     );
-
-    // JSON文字列化
     const definitionJson = JSON.stringify(definitionObject);
 
-    // IAMロールの作成
+    // create IAM role for Step Functions
     const stateMachineRole = new iam.Role(this, 'StateMachineRole', {
-      assumedBy: new iam.ServicePrincipal('states.amazonaws.com'), // Step Functionsがこのロールを利用
+      assumedBy: new iam.ServicePrincipal('states.amazonaws.com'),
     });
 
     // 必要なポリシーをアタッチ
@@ -75,8 +75,9 @@ export class StepFunctionStack extends cdk.Stack {
 
     // Step Functions ステートマシンの作成
     const stateMachine = new sfn.CfnStateMachine(this, 'StateMachine', {
-      roleArn: stateMachineRole.roleArn, // 作成したロールのARNを指定
+      roleArn: stateMachineRole.roleArn,
       definitionString: definitionJson,
+      stateMachineName: stackName,
     });
 
     // 出力

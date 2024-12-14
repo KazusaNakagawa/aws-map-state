@@ -5,9 +5,14 @@ import { StepFunctionStack } from '../lib/aws-map-state-stack';
 
 const app = new cdk.App();
 
-new StepFunctionStack(app, 'StepFunctionStack', {
+/* Get the context parameter for environment */
+const env = app.node.tryGetContext('env');
+
+new StepFunctionStack(app, `StepFunctionStack-${env}`, {
   env: { 
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,
   },
 });
+
+app.synth();
