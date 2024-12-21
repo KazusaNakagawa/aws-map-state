@@ -41,11 +41,11 @@ States:
       - ErrorEquals:
           - States.ALL
         Next: NotifySlack
-    Next: AggregateResults
+    Next: AggrResults
 
-  AggregateResults:
+  AggrResults:
     Type: Task
-    Resource: arn:aws:lambda:${region}:${account}:function:AggregateResults-${env}
+    Resource: arn:aws:lambda:${region}:${account}:function:AggrResults-${env}
     TimeoutSeconds: 60
     Retry:
       - ErrorEquals:

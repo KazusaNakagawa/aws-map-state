@@ -1,5 +1,5 @@
-import json
 from typing import Dict
+import snowflake.connector
 
 
 def handler(event: Dict, context):
