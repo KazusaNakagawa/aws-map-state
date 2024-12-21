@@ -7,17 +7,17 @@ def handler(event: List, context: Any) -> Dict:
     if not isinstance(event, list):
         raise ValueError("Invalid input format: expected a list")
 
-    aggrd_count: int = 0
+    aggregated_count: int = 0
 
     for item in event:
         if isinstance(item, dict):
             schemas = item.get("schema", [])
             if isinstance(schemas, str):
-                aggrd_count += 1
+                aggregated_count += 1
 
     return {
         "event": event,
-        "aggrd_result": aggrd_count,
+        "aggregated_result": aggregated_count,
     }
 
 
@@ -39,4 +39,4 @@ if __name__ == "__main__":
         "result": "Processed schema3"
       }
     ]
-    print(handler(event, None))  # => {"aggrd_result": 3}
+    print(handler(event, None))  # => {"aggregated_result": 3}
