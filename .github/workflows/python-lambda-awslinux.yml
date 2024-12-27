@@ -11,14 +11,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Run tests in Amazon Linux container
+      - name: Build custom Amazon Linux image
         run: |
-          docker run --rm -v $(pwd):/workspace -w /workspace amazonlinux:2 bash -c "
-            yum install -y python3.12 python3.12-pip &&
+          docker build -t custom-amazonlinux:2 -f layers/Dockerfile .
+      - name: Run tests in custom Amazon Linux container
+        run: |
+          docker run --rm -v $(pwd):/workspace -w /workspace custom-amazonlinux:2 bash -c "
             pip3.12 install --upgrade pip &&
             pip3.12 install -r lambdas/requirements.test.txt &&
             cd lambdas && python3.12 -m pytest -sv
