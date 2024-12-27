@@ -4,7 +4,8 @@ import pytest
 import process_schema as ps
 from tests.conftest import FIXTURES_DIR
 
-class TestLoadConfig:
+
+class TestProcessSchema:
 
     @pytest.fixture
     def event_fixture(self):
