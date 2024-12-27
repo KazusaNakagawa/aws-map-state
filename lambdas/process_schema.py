@@ -1,4 +1,6 @@
 from typing import Dict
+
+
 CHUNK_SIZE = 3
 
 def handler(event: Dict, context):
