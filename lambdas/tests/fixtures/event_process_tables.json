@@ -1,0 +1,6 @@
+{
+  "schema": "schemaA",
+  "target_tables": ["tableA", "tableB", "tableC"],
+  "dt_date": "2021-01-01",
+  "chunk_num": 0
+}

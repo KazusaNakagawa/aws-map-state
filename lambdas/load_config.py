@@ -1,5 +1,5 @@
 from typing import Dict
-import snowflake.connector
+# import snowflake.connector
 
 
 def handler(event: Dict, context):

@@ -1,0 +1,5 @@
+{
+  "dt_date": "2021-01-01",
+  "schema": "schemaA",
+  "tables": ["tableA", "tableB", "tableC", "tableD", "tableE"]
+}

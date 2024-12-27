@@ -23,14 +23,4 @@ $ npx cdk destroy -c env={env}
 
 ## Test 
 
-```json
-{
-    "category": "type1",
-    "dt_date": "2021-01-01",
-    "schemas": [
-        "schema1",
-        "schema2",
-        "schema3"
-    ]
-}
-```
+T.B.D.

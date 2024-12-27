@@ -23,10 +23,31 @@ export class StepFunctionStack extends cdk.Stack {
   }
 
   private createFunction(env: string, account: string, region: string) {
+
+    /* Create python layer */
+    const layer = new lambda.LayerVersion(this, 'PythonLayer', {
+      code: lambda.Code.fromAsset(path.join(__dirname, '../layers/layer.zip')),
+      compatibleRuntimes: [lambda.Runtime.PYTHON_3_12],
+      description: 'Python dependencies',
+    });
+
+    const excludeLambda = [
+      '.gitignore',
+      '.pytest_cache',
+      '.venv',
+      '__pycache__',
+      'requirements.test.txt',
+      'tests',
+    ]
+
     const loadConfigFunction = new lambda.Function(this, 'LoadConfigFunction', {
       runtime: lambda.Runtime.PYTHON_3_12,
       handler: 'load_config.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambdas')),
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, '../lambdas'),
+        { exclude: excludeLambda }
+      ),
+      // layers: [layer],
       functionName: `LoadConfig-${env}`,
       timeout: cdk.Duration.seconds(30),
     });
@@ -34,23 +55,43 @@ export class StepFunctionStack extends cdk.Stack {
     const processSchemaFunction = new lambda.Function(this, 'ProcessSchemaFunction', {
       runtime: lambda.Runtime.PYTHON_3_12,
       handler: 'process_schema.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambdas')),
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, '../lambdas'),
+        { exclude: excludeLambda }
+      ),
       functionName: `ProcessSchema-${env}`,
       timeout: cdk.Duration.seconds(60),
     });
 
-    const aggregateResultsFunction = new lambda.Function(this, 'AggregateResultsFunction', {
+    const processTablesFunction = new lambda.Function(this, 'ProcessTablesFunction', {
       runtime: lambda.Runtime.PYTHON_3_12,
-      handler: 'aggregate_results.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambdas')),
-      functionName: `AggregateResults-${env}`,
+      handler: 'process_tables.handler',
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, '../lambdas'),
+        { exclude: excludeLambda }
+      ),
+      functionName: `ProcessTables-${env}`,
+      timeout: cdk.Duration.seconds(30),
+    });
+
+    const aggrResultsFunction = new lambda.Function(this, 'AggrResultsFunction', {
+      runtime: lambda.Runtime.PYTHON_3_12,
+      handler: 'aggr_results.handler',
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, '../lambdas'),
+        { exclude: excludeLambda }
+      ),
+      functionName: `AggrResults-${env}`,
       timeout: cdk.Duration.seconds(30),
     });
 
     const notifySlackFunction = new lambda.Function(this, 'NotifySlackFunction', {
       runtime: lambda.Runtime.PYTHON_3_12,
       handler: 'notify_slack.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambdas')),
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, '../lambdas'),
+        { exclude: excludeLambda }
+      ),
       functionName: `NotifySlack-${env}`,
       timeout: cdk.Duration.seconds(30),
     });
@@ -68,7 +109,8 @@ export class StepFunctionStack extends cdk.Stack {
         .replace(/\${env}/g, env)
         .replace('${LoadConfigFunctionArn}', loadConfigFunction.functionArn)
         .replace('${ProcessSchemaFunctionArn}', processSchemaFunction.functionArn)
-        .replace('${AggregateResultsFunctionArn}', aggregateResultsFunction.functionArn)
+        .replace('${ProcessTablesFunctionArn}', processTablesFunction.functionArn)
+        .replace('${AggrResultsFunctionArn}', aggrResultsFunction.functionArn)
         .replace('${NotifySlackFunctionArn}', notifySlackFunction.functionArn)
     );
     const definitionJson = JSON.stringify(definitionObject);

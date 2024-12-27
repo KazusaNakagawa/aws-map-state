@@ -19,13 +19,16 @@ States:
 
   ProcessSchemas:
     Type: Map
-    InputPath: $.schemas
+    InputPath: $
+    ItemsPath: $.schemas
     Parameters:
-      "schema.$": "$$.Map.Item.Value"
+        "schema.$": "$$.Map.Item.Value.schema"
+        "tables.$": "$$.Map.Item.Value.tables"
+        "dt_date.$": "$.dt_date"
     Iterator:
-      StartAt: ProcessSingleSchema
+      StartAt: ProcessSchema
       States:
-        ProcessSingleSchema:
+        ProcessSchema:
           Type: Task
           Resource: arn:aws:lambda:${region}:${account}:function:ProcessSchema-${env}
           TimeoutSeconds: 60
@@ -36,6 +39,32 @@ States:
               IntervalSeconds: 5
               MaxAttempts: 3
               BackoffRate: 2.0
+          Next: ProcessTables
+
+        ProcessTables:
+          Type: Map
+          InputPath: $
+          ItemsPath: $.tables
+          Parameters:
+            "target_tables.$": "$$.Map.Item.Value"
+            "schema.$": "$.schema"
+            "dt_date.$": "$.dt_date"
+            "chunk_num.$": "$$.Map.Item.Index"
+          Iterator:
+            StartAt: ProcessSingleTable
+            States:
+              ProcessSingleTable:
+                Type: Task
+                Resource: arn:aws:lambda:${region}:${account}:function:ProcessTables-${env}
+                TimeoutSeconds: 60
+                Retry:
+                  - ErrorEquals:
+                      - States.Timeout
+                      - States.Runtime
+                    IntervalSeconds: 5
+                    MaxAttempts: 3
+                    BackoffRate: 2.0
+                End: true
           End: true
     Catch:
       - ErrorEquals:

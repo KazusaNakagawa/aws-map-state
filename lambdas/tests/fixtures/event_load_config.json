@@ -1,0 +1,47 @@
+{
+    "category": "type1",
+    "dt_date": "2021-01-01",
+    "schemas": [
+        {
+            "schema": "schemaA",
+            "tables": [
+                "tableA",
+                "tableB",
+                "tableC",
+                "tableD",
+                "tableE"
+            ]
+        },
+        {
+            "schema": "schemaB",
+            "tables": [
+                "tableF",
+                "tableG",
+                "tableH",
+                "tableI",
+                "tableJ",
+                "tableK"
+            ]
+        },
+        {
+            "schema": "schemaC",
+            "tables": [
+                "tableL",
+                "tableM",
+                "tableN",
+                "tableO",
+                "tableP",
+                "tableQ",
+                "tableR",
+                "tableS",
+                "tableT",
+                "tableU",
+                "tableV",
+                "tableW",
+                "tableX",
+                "tableY",
+                "tableZ"
+            ]
+        }
+    ]
+}

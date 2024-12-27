@@ -1,0 +1,62 @@
+[
+  [
+    {
+      "dt_date": "2021-01-01",
+      "schema": "schemaA",
+      "status": "Tables processed",
+      "chunk_num": 0
+    },
+    {
+      "dt_date": "2021-01-01",
+      "schema": "schemaA",
+      "status": "Tables processed",
+      "chunk_num": 1
+    }
+  ],
+  [
+    {
+      "dt_date": "2021-01-01",
+      "schema": "schemaB",
+      "status": "Tables processed",
+      "chunk_num": 0
+    },
+    {
+      "dt_date": "2021-01-01",
+      "schema": "schemaB",
+      "status": "Tables processed",
+      "chunk_num": 1
+    }
+  ],
+  [
+    {
+      "dt_date": "2021-01-01",
+      "schema": "schemaC",
+      "status": "Tables processed",
+      "chunk_num": 0
+    },
+    {
+      "dt_date": "2021-01-01",
+      "schema": "schemaC",
+      "status": "Tables processed",
+      "chunk_num": 1
+    },
+    {
+      "dt_date": "2021-01-01",
+      "schema": "schemaC",
+      "status": "Tables processed",
+      "chunk_num": 2
+    },
+    {
+      "dt_date": "2021-01-01",
+      "schema": "schemaC",
+      "status": "Tables processed",
+      "chunk_num": 3
+    },
+    {
+      "dt_date": "2021-01-01",
+      "schema": "schemaC",
+      "status": "Tables processed",
+      "chunk_num": 4
+    }
+  ]
+]

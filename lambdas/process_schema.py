@@ -1,29 +1,34 @@
-def handler(event, context):
-    """1つのイベントを受け取り、スキーマを処理"""
-    print(f"Received event: {event}")
+from typing import Dict
+CHUNK_SIZE = 3
 
-    if not isinstance(event, dict):
-        raise ValueError("Invalid input format: event must be dict")
+def handler(event: Dict, context):
+    """event は map state で受け取った値
+    tables を chunk に分けて返す defoult chunk size は 3
 
-    schema = event.get("schema")
-
-    if not schema:
-        raise ValueError("Invalid input: 'schema' field is required")
-
-    import time
-    if schema == "schema1":
-        time.sleep(10)
-
-    event["result"] = f"Processed {schema}"
-    event["schema"] = schema
-
-    print(f"Processed event: {event}")
-    return event
-
-
-if __name__ == "__main__":
-    event = {
+    Parameters:
+    {
         "dt_date": "2021-01-01",
-        "schema": "schema1",
+        "schema": "schemaA",
+        "tables": [
+            "tableA",
+            "tableB",
+            "tableC",
+            "tableD",
+            "tableE"
+        ]
     }
-    print(handler(event, None))
+    """ 
+    schema = event.get("schema")
+    tables = event.get("tables")
+    chunk_size = event.get("chunk_size", CHUNK_SIZE)
+
+    if not tables or not isinstance(tables, list):
+        raise ValueError("Invalid input: 'tables' field is required")
+
+    chunked_tables = [tables[i:i + chunk_size] for i in range(0, len(tables), chunk_size)]
+    return {
+         "dt_date": event.get("dt_date"),
+         "schema": schema,
+         "tables": chunked_tables,
+         "chunk_nums": list(range(len(chunked_tables)))
+    }

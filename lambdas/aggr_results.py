@@ -9,34 +9,11 @@ def handler(event: List, context: Any) -> Dict:
 
     aggregated_count: int = 0
 
-    for item in event:
-        if isinstance(item, dict):
-            schemas = item.get("schema", [])
-            if isinstance(schemas, str):
+    for sublist in event:
+        for item in sublist:
+            if item.get('status') == 'Tables processed':
                 aggregated_count += 1
 
     return {
-        "event": event,
         "aggregated_result": aggregated_count,
     }
-
-
-if __name__ == "__main__":
-    event = [
-      {
-        "dt_date": "2021-01-01", 
-        "schema": "schema1",
-        "result": "Processed schema1"
-      },
-      {
-        "dt_date": "2021-01-01", 
-        "schema": "schema2",
-        "result": "Processed schema2"
-      },
-      {
-        "dt_date": "2021-01-01", 
-        "schema": "schema3",
-        "result": "Processed schema3"
-      }
-    ]
-    print(handler(event, None))  # => {"aggregated_result": 3}
