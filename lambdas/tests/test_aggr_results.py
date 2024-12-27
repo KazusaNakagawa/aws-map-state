@@ -4,7 +4,8 @@ import pytest
 import aggr_results as ar
 from tests.conftest import FIXTURES_DIR
 
-class TestLoadConfig:
+
+class TestAggrResults:
 
     @pytest.fixture
     def event_fixture(self):
