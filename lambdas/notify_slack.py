@@ -1,4 +1,5 @@
-# import requests
+import requests
+
 
 def handler(event, context):
     """集計結果をSlackに通知"""
