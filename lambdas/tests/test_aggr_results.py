@@ -1,18 +1,12 @@
-import json
 import pytest
 
 import aggr_results as ar
-from tests.conftest import FIXTURES_DIR
 
 
 class TestAggrResults:
 
-    @pytest.fixture
-    def event_fixture(self):
-        with open(f"{FIXTURES_DIR}/event_aggr_results.json") as f:
-            return json.load(f)
-
+    @pytest.mark.parametrize('event_fixture', ['event_aggr_results.json'], indirect=True)
     def test_handler(self, event_fixture):
         event = event_fixture
         result = ar.handler(event, None)
-        assert result["aggregated_result"] == 9
+        assert result['aggregated_result'] == 9
