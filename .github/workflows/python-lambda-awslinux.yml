@@ -14,11 +14,10 @@ jobs:
       - name: Build custom Amazon Linux image
         run: |
           cp -f layers/requirements.txt .
-          docker build -t custom-amazonlinux:2 -f layers/Dockerfile.github .
+          docker build -t custom-amazonlinux:2 -f ./Dockerfile.github .
       - name: Run tests in custom Amazon Linux container
         run: |
           docker run --rm -v $(pwd)/lambdas:/workspace/lambdas -w /workspace/lambdas custom-amazonlinux:2 bash -c "
-            yum install -y  sqlite sqlite-devel &&
             pip3.12 install --upgrade pip &&
             pip3.12 install -r requirements.test.txt &&
             python3.12 -m pytest -sv
