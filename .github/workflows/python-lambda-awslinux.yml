@@ -1,6 +1,9 @@
 name: Python Lambda on Amazon Linux
 
-on: [push]
+on:
+  push:
+    branches:
+      - 'feature/*'
 
 jobs:
   build:
