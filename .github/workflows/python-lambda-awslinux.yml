@@ -21,5 +21,7 @@ jobs:
       - name: Run tests in custom Amazon Linux container
         run: |
           docker run --rm -v $(pwd)/lambdas:/workspace/lambdas -w /workspace/lambdas custom-amazonlinux:2 bash -c "
+            pip3.12 install --upgrade pip &&
+            pip3.12 install -r requirements.test.txt &&
             python3.12 -m pytest -sv
           "
