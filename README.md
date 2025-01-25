@@ -46,7 +46,7 @@ aws-map-state/
 └── tsconfig.json
 ```
 
-## WORKFLOW
+## Workflow
 
 ![alt text](./docs/images/workflow.png)
 
